@@ -42,7 +42,7 @@ local AndroidNDKRoot = [ os.environ AndroidNDKRoot ] ;
 
 
 # --------------------------------------------------------------------
-using gcc : androidR8e
+using gcc : androidR9b
 :
 i686-linux-android-g++
 :
@@ -61,7 +61,7 @@ i686-linux-android-g++
 <compileflags>-fno-strict-aliasing
 <compileflags>-funswitch-loops
 <compileflags>-finline-limit=300
-<compileflags>-I$(AndroidNDKRoot)/platforms/android-14/arch-x86/usr/include
+<compileflags>-I$(AndroidNDKRoot)/platforms/android-9/arch-x86/usr/include
 <compileflags>-Wa,--noexecstack
 <compileflags>-DANDROID
 <compileflags>-D__ANDROID__

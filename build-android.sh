@@ -28,45 +28,14 @@
 # -----------------------
 
 BOOST_VER1=1
-BOOST_VER2=54
-ABI=armeabi
+BOOST_VER2=55
 BOOST_VER3=0
-register_option "--boost=<version>" boost_version "Boost version to be used, one of {1.54.0,1.53.0,1.49.0, 1.48.0, 1.45.0}, default is 1.53.0."
-boost_version()
-{
-  if [ "$1" = "1.54.0" ]; then
-    BOOST_VER1=1
-    BOOST_VER2=54
-    BOOST_VER3=0
-  elif [ "$1" = "1.53.0" ]; then
-    BOOST_VER1=1
-    BOOST_VER2=53
-    BOOST_VER3=0
-  elif [ "$1" = "1.49.0" ]; then
-    BOOST_VER1=1
-    BOOST_VER2=49
-    BOOST_VER3=0
-  elif [ "$1" = "1.48.0" ]; then
-    BOOST_VER1=1
-    BOOST_VER2=48
-    BOOST_VER3=0
-  elif [ "$1" = "1.45.0" ]; then
-    BOOST_VER1=1
-    BOOST_VER2=45
-    BOOST_VER3=0
-  else
-    echo "Unsupported boost version '$1'."
-    exit 1
-  fi
-}
+ABI=armeabi
+ANDROID_NDK_ROOT=/opt/android-ndk
 
 register_option "--abi=<abi>" select_abi "Select ABI (armeabi, armeabi-v7, x86)"
 select_abi () {
     ABI=$1
-}
-register_option "--toolchain=<toolchain>" select_toolchain "Select a toolchain. To see available execute ls -l ANDROID_NDK/toolchains."
-select_toolchain () {
-    TOOLCHAIN=$1
 }
 
 CLEAN=no
@@ -98,7 +67,7 @@ do_prefix () {
     fi
 }
 
-PROGRAM_PARAMETERS="<ndk-root>"
+PROGRAM_PARAMETERS=""
 PROGRAM_DESCRIPTION=\
 "       Boost For Android\n"\
 "Copyright (C) 2010 Mystic Tree Games\n"\
@@ -152,7 +121,7 @@ if [ -d "$PROGDIR/$BUILD_DIR" ]; then
 fi
 
 
-export AndroidNDKRoot=$PARAMETERS
+export AndroidNDKRoot=$ANDROID_NDK_ROOT
 if [ -z "$AndroidNDKRoot" ] ; then
 	if [ -z "`which ndk-build`" ]; then
 		dump "ERROR: You need to provide a <ndk-root>!"
@@ -183,60 +152,13 @@ NDK_RN=`cat $NDK_RELEASE_FILE | sed 's/^r\(.*\)$/\1/g'`
 
 echo "Detected Android NDK version $NDK_RN"
 
-case "$NDK_RN" in
-	4*)
-		TOOLCHAIN=${TOOLCHAIN:-arm-eabi-4.4.0}
-		CXXPATH=$AndroidNDKRoot/build/prebuilt/$PlatformOS-x86/${TOOLCHAIN}/bin/arm-eabi-g++
-		TOOLSET=gcc-androidR4
-		;;
-	5*)
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.4.3}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/$PlatformOS-x86/bin/arm-linux-androideabi-g++
-		TOOLSET=gcc-androidR5
-		;;
-	7-crystax-5.beta3)
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.6.3}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/$PlatformOS-x86/bin/arm-linux-androideabi-g++
-		TOOLSET=gcc-androidR7crystax5beta3
-		;;
-	8)
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.4.3}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/$PlatformOS-x86/bin/arm-linux-androideabi-g++
-		TOOLSET=gcc-androidR8
-		;;
-	8b|8c|8d)
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.6}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/$PlatformOS-x86/bin/arm-linux-androideabi-g++
-		TOOLSET=gcc-androidR8b
-		;;
-	8e|9)
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.6}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/$PlatformOS-x86/bin/arm-linux-androideabi-g++
-		TOOLSET=gcc-androidR8e
-		;;
-	"8e (64-bit)")
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.6}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-g++
-		TOOLSET=gcc-androidR8e
-		;;
-	"9 (64-bit)")
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.6}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-g++
-		TOOLSET=gcc-androidR8e
-		;;
-	"9b (64-bit)")
-		TOOLCHAIN=${TOOLCHAIN:-arm-linux-androideabi-4.8}
-		CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-g++
-                if [ "$ABI" == "x86" ]; then
-		    TOOLCHAIN=x86-4.8
-                    CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/i686-linux-android-g++
-                fi
-		TOOLSET=gcc-androidR8e
-		;;
-	*)
-		echo "Undefined or not supported Android NDK version!"
-		exit 1
-esac
+TOOLCHAIN=arm-linux-androideabi-4.8
+CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/arm-linux-androideabi-g++
+if [ "$ABI" == "x86" ]; then
+    TOOLCHAIN=x86-4.8
+    CXXPATH=$AndroidNDKRoot/toolchains/${TOOLCHAIN}/prebuilt/${PlatformOS}-x86_64/bin/i686-linux-android-g++
+fi
+TOOLSET=gcc-androidR9b
 
 
 echo Building with TOOLSET=$TOOLSET CXXPATH=$CXXPATH CXXFLAGS=$CXXFLAGS | tee $PROGDIR/build.log
