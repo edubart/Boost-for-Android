@@ -38,6 +38,11 @@ select_abi () {
     ABI=$1
 }
 
+register_option "--ndk-root=<path>" select_ndkroot "Path for Android NDK"
+select_ndkroot () {
+    ANDROID_NDK_ROOT=$1
+}
+
 CLEAN=no
 register_option "--clean"    do_clean     "Delete all previously downloaded and built files, then exit."
 do_clean () {	CLEAN=yes; }
